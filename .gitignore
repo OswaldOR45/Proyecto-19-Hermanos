@@ -1,0 +1,16 @@
+# Credenciales secretas de Google
+credentials.json
+
+# Carpeta del Entorno Virtual de Python
+.venv/
+venv/
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+
+# Archivos de configuración de PyCharm
+.idea/
+
+# Archivos de salida (los gráficos que generamos)
+*.png
