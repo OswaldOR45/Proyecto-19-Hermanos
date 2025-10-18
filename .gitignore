@@ -1,5 +1,6 @@
 # Credenciales secretas de Google
 credentials.json
+config.py
 
 # Carpeta del Entorno Virtual de Python
 .venv/

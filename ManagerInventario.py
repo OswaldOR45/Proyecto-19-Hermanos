@@ -1,21 +1,34 @@
-#Realizado por Oswaldo Reynoso Robles Practicante IT el 11 de octubre de 2025
+"""
+Realizado por Oswaldo Reynoso Robles Practicante IT el 11 de octubre de 2025
 
-#Script donde se obtienen los datos de ENTRADAS, SALIDAS e Inventario de la empresa 19 Hermanos planta Pet Food de:
-# https://docs.google.com/spreadsheets/d/1U42KozvOiQLWoi0O_6Ij17Vd6Yy71NBVHraIrue9OS8/edit?gid=0#gid=0
+Script donde se obtienen los datos de ENTRADAS, SALIDAS e Inventario de la empresa 19 Hermanos planta Pet Food
 
-#Se busca realizar un procesamiento de esos datos, con la finalidad de obtener reslutados, para tomas de decisiones
-#El archivo contiene las siguientes pestañas y sus datos utilizables para este proyecto:
+Se busca realizar un procesamiento de esos datos, con la finalidad de obtener reslutados, para tomas de decisiones
+El archivo contiene las siguientes pestañas y sus datos utilizables para este proyecto:
 
-#Pestaña: ENTRADAS, Datos: TIMESTAMP, PRODUCTO, LOTE DE PRODUCCIÓN, CANTIDAD (COSTALES), TURNO, OPERADOR DE EMPAQUE, SUPERVISOR DE PRODUCCIÓN, REGISTRADO POR
-#Pestaña: SALIDAS, Datos: TIMESTAMP, PRODUCTO, LOTE DE SALIDA, CANTIDAD (COSTALES), CLIENTE, NUM.ORDEN DE SALIDA, SUPERVISOR DE EMBARQUE, REGISTRADO POR
-#Pestaña: INVENTARIO/STOCK, Datos: Producto, LOTE, TOTAL DE ENTRADAS, TOTAL DE SALIDAS, STOCK(E-S)
+Pestaña: ENTRADAS, Datos: TIMESTAMP, PRODUCTO, LOTE DE PRODUCCIÓN, CANTIDAD (COSTALES), TURNO, OPERADOR DE EMPAQUE, SUPERVISOR DE PRODUCCIÓN, REGISTRADO POR
+Pestaña: SALIDAS, Datos: TIMESTAMP, PRODUCTO, LOTE DE SALIDA, CANTIDAD (COSTALES), CLIENTE, NUM.ORDEN DE SALIDA, SUPERVISOR DE EMBARQUE, REGISTRADO POR
+Pestaña: INVENTARIO/STOCK, Datos: Producto, LOTE, TOTAL DE ENTRADAS, TOTAL DE SALIDAS, STOCK(E-S)
 
+¡IMPORTANTE! REQUISITOS PARA EJECUTAR
+Este script NO funcionará sin dos (2) archivos secretos que están ignorados por Git:
 
+1.  `config.py`:
+    Un archivo que debe contener:
+    - sheet_url = "la_url_de_tu_google_sheet"
+    (Puedes usar `config.py.example` como plantilla para crearlo).
+
+2.  Un archivo de credenciales `.json`:
+    Este es el archivo JSON de credenciales de la Cuenta de Servicio de Google Cloud.
+    Esta cuenta debe tener permisos de "Editor" sobre la Hoja de Google.
+
+"""
 # --- CONFIGURACIÓN Y CONEXIÓN ---
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import matplotlib.pyplot as plt
+from config import sheet_url
 
 print("Librerías importadas correctamente.")
 
@@ -27,10 +40,6 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', sco
 # Autoriza al cliente de gspread.
 client = gspread.authorize(creds)
 print("Autenticación con Google exitosa.")
-
-# --- Acceso al Archivo ---
-sheet_url = "https://docs.google.com/spreadsheets/d/1U42KozvOiQLWoi0O_6Ij17Vd6Yy71NBVHraIrue9OS8/edit#gid=0"
-
 try:
     # Abre la hoja de cálculo usando su URL.
     spreadsheet = client.open_by_url(sheet_url)

@@ -10,8 +10,8 @@ El script genera un conjunto completo de análisis sobre la eficiencia operativa
 
 * **Análisis de Productividad (Sumas):**
     * Producción total por Turno.
-    * Producción total por Producto (Top 10).
-    * Producción total por Operador (Top 10).
+    * Producción total por Producto .
+    * Producción total por Operador .
     * Producción total por Supervisor.
 
 * **Análisis Estadístico Avanzado (Eficiencia y Consistencia):**
