@@ -160,7 +160,7 @@ try:
         plt.grid(axis='y', linestyle='--', alpha=0.7)
         plt.tight_layout()
 
-        # Gráfico 2: Top 10 Productos
+        # Gráfico 2: Productos
         plt.figure(figsize=(12, 8))
         productividad_por_producto.head(10).plot(kind='barh', color='purple')
         plt.title('Productos por Producción Total', fontsize=16, fontweight='bold')
@@ -170,7 +170,7 @@ try:
         plt.grid(axis='x', linestyle='--', alpha=0.7)
         plt.tight_layout()
 
-        # Gráfico 3: Top 10 Operadores
+        # Gráfico 3: Operadores
         plt.figure(figsize=(12, 8))
         productividad_por_operador.head(10).plot(kind='barh', color='teal')
         plt.title('Operadores por Producción Total', fontsize=16, fontweight='bold')
