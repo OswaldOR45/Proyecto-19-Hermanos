@@ -1,8 +1,17 @@
+"""
+En este script generamos el Dashboard para una mejor visualización de los análisis y los resultados obtenidos, a este script
+se le adjuntarán 2 modulos, esto debido a la fase 2 de el proyecto, donde ya se esperan datos de EMBARQUES, entonces ya
+harán cálculos de PEPS, entonces aligeraré la carga y limpieza de código de este script, con ayuda de etl.py y analysis.py
+
+
+Hecho por Oswaldo Reynoso 01/11/2025
+"""
+
 import streamlit as st
 import pandas as pd
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import plotly.express as px
+# Importamos nuestra función de "fontanería" desde el nuevo módulo
+from etl import load_data
 
 # --- 1. Configuración de la Página ---
 st.set_page_config(
@@ -10,56 +19,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. Carga de Datos y Caching ---
-@st.cache_data
-def load_data():
-    print("Iniciando carga de datos (esto solo debe aparecer una vez)...")
-
-    try:
-        sheet_url = st.secrets["sheet_url"]
-        GCP_CREDS = st.secrets["gcp_service_account"]
-    except Exception as e:
-        st.error(f" Error al leer los secrets de Streamlit. Asegúrate de configurarlos en el deploy. Detalle: {e}")
-        return pd.DataFrame()
-
-    try:
-        scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(GCP_CREDS, scope)
-        client = gspread.authorize(creds)
-    except Exception as e:
-        st.error(f"Error de autenticación con Google. Revisa tus credenciales en st.secrets. Detalle: {e}")
-        return pd.DataFrame()
-
-    try:
-        spreadsheet = client.open_by_url(sheet_url)
-        sheet_entradas = spreadsheet.worksheet('ENTRADAS')
-        data = sheet_entradas.get_all_values()
-
-        if len(data) <= 1:
-            st.warning("La hoja 'ENTRADAS' está vacía.")
-            return pd.DataFrame()
-
-        df = pd.DataFrame(data[1:], columns=data[0])
-    except Exception as e:
-        st.error(f"Error al leer la hoja de Google: {e}")
-        return pd.DataFrame()
-
-    try:
-        df['CANTIDAD (COSTALES)'] = pd.to_numeric(df['CANTIDAD (COSTALES)'], errors='coerce')
-        df['TIMESTAMP'] = pd.to_datetime(df['TIMESTAMP'], format='%d/%m/%Y %H:%M:%S')
-        df = df.dropna(subset=['CANTIDAD (COSTALES)'])
-        df['FECHA'] = df['TIMESTAMP'].dt.date
-        print("...Carga de datos completada.")
-        return df
-
-    except Exception as e:
-        st.error(f"Error durante la limpieza de datos: {e}")
-        return pd.DataFrame()
-
-
 # --- 3. Ejecución Principal del Dashboard ---
 
 st.title("Dashboard de Producción - 19 Hermanos Pet Food")
+
+# Llamamos a la función load_data() que ahora vive en etl.py
+# Gracias al caché, esto solo se ejecuta una vez.
 df = load_data()
 
 if df.empty:
