@@ -63,9 +63,6 @@ def load_data():
         df = df.dropna(subset=['CANTIDAD (COSTALES)'])
         df['FECHA'] = df['TIMESTAMP'].dt.date
         print("...Carga de datos completada.")
-
-        # En el futuro, aquí retornaremos un diccionario con todos los dataframes
-        # return {"entradas": df, "salidas": df_salidas, ...}
         return df
 
     except Exception as e:
