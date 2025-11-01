@@ -16,7 +16,7 @@ def load_data():
     print("Iniciando carga de datos (esto solo debe aparecer una vez)...")
 
     try:
-        sheet_url = st.secrets["SHEET_URL"]
+        sheet_url = st.secrets["sheet_url"]
         GCP_CREDS = st.secrets["gcp_service_account"]
     except Exception as e:
         st.error(f" Error al leer los secrets de Streamlit. Asegúrate de configurarlos en el deploy. Detalle: {e}")
