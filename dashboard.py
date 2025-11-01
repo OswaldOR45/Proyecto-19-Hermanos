@@ -9,9 +9,13 @@ Hecho por Oswaldo Reynoso 01/11/2025
 
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-# Importamos nuestra función de "fontanería" desde el nuevo módulo
 from etl import load_data
+from analysis import (
+    calculate_kpis,
+    generate_pie_chart,
+    generate_bar_chart,
+    generate_line_chart
+)
 
 # --- 1. Configuración de la Página ---
 st.set_page_config(
@@ -23,8 +27,7 @@ st.set_page_config(
 
 st.title("Dashboard de Producción - 19 Hermanos Pet Food")
 
-# Llamamos a la función load_data() que ahora vive en etl.py
-# Gracias al caché, esto solo se ejecuta una vez.
+# 1. CARGAR DATOS (desde etl.py)
 df = load_data()
 
 if df.empty:
@@ -64,7 +67,7 @@ else:
         (df['FECHA'] <= fecha_fin) &
         (df['SUPERVISOR DE PRODUCCIÓN'].isin(supervisor_seleccionado)) &
         (df['PRODUCTO'].isin(producto_seleccionado))
-        ]
+    ]
 
     # --- 6. Mostrar el Dashboard ---
 
@@ -72,12 +75,9 @@ else:
         st.warning("No se encontraron datos con los filtros seleccionados.")
     else:
         # --- 7. KPIs Principales ---
-        # Métricas simples que tu gerente pidió (Volumen y Frecuencia)
-        total_costales = int(df_filtrado['CANTIDAD (COSTALES)'].sum())
-        total_lotes = int(df_filtrado['CANTIDAD (COSTALES)'].count())
-        costales_por_lote = int(total_costales / total_lotes) if total_lotes > 0 else 0
+        # 2. CALCULAR KPIs (desde analysis.py)
+        total_costales, total_lotes, costales_por_lote = calculate_kpis(df_filtrado)
 
-        # Mostramos los KPIs en 3 columnas
         col1, col2, col3 = st.columns(3)
         col1.metric("Costales Totales Producidos", f"{total_costales:,}")
         col2.metric("Total de Lotes Registrados", f"{total_lotes:,}")
@@ -88,67 +88,34 @@ else:
         # --- 8. Visualizaciones del Dashboard ---
         col1, col2 = st.columns(2)  # Creamos dos columnas para los gráficos
 
-        # Gráfico 1: Gráfico de Pastel por Producto (Lo que pidió el director)
         with col1:
             st.subheader("Producción por Producto")
-            # Agrupamos por producto y sumamos
-            prod_por_producto = df_filtrado.groupby('PRODUCTO')['CANTIDAD (COSTALES)'].sum().reset_index()
-            prod_por_producto = prod_por_producto.sort_values(by='CANTIDAD (COSTALES)', ascending=False)
-
-            # Creamos el gráfico de pastel con Plotly
-            fig_pie = px.pie(
-                prod_por_producto.head(10),  # Tomamos el Top 10
-                names='PRODUCTO',
-                values='CANTIDAD (COSTALES)',
-                title='Top 10 Productos por Producción'
-            )
+            # 3. GENERAR GRÁFICO 1 (desde analysis.py)
+            fig_pie = generate_pie_chart(df_filtrado)
             st.plotly_chart(fig_pie, use_container_width=True)
 
-        # Gráfico 2: Gráfico de Barras por Supervisor
         with col2:
             st.subheader("Producción por Supervisor")
-            # Agrupamos por supervisor y sumamos
-            prod_por_supervisor = df_filtrado.groupby('SUPERVISOR DE PRODUCCIÓN')[
-                'CANTIDAD (COSTALES)'].sum().reset_index()
-            prod_por_supervisor = prod_por_supervisor.sort_values(by='CANTIDAD (COSTALES)', ascending=False)
-
-            # Creamos el gráfico de barras con Plotly
-            fig_bar_super = px.bar(
-                prod_por_supervisor,
-                x='SUPERVISOR DE PRODUCCIÓN',
-                y='CANTIDAD (COSTALES)',
-                title='Producción Total por Supervisor'
-            )
+            # 4. GENERAR GRÁFICO 2 (desde analysis.py)
+            fig_bar_super = generate_bar_chart(df_filtrado)
             st.plotly_chart(fig_bar_super, use_container_width=True)
 
         st.markdown("---")
 
-        # Gráfico 3: Tendencia de Producción (Gráfico de Líneas)
         st.subheader("Tendencia de Producción en el Tiempo")
-        # Agrupamos por fecha (usamos la columna FECHA que ya creamos)
-        prod_por_fecha = df_filtrado.groupby('FECHA')['CANTIDAD (COSTALES)'].sum().reset_index()
-
-        fig_line = px.line(
-            prod_por_fecha,
-            x='FECHA',
-            y='CANTIDAD (COSTALES)',
-            title='Producción Total por Día'
-        )
+        # 5. GENERAR GRÁFICO 3 (desde analysis.py)
+        fig_line = generate_line_chart(df_filtrado)
         st.plotly_chart(fig_line, use_container_width=True)
 
         # --- 9. TABLA DE DATOS (OPCIONAL) ---
         st.markdown("---")
         st.subheader("Detalle de Registros Filtrados")
 
-        # Usamos un expander para que la tabla no ocupe espacio por defecto
         with st.expander("Ver/Ocultar Tabla de Datos"):
-            # Define las columnas que tu gerente quería ver
             columnas_a_mostrar = [
                 'PRODUCTO',
                 'LOTE DE PRODUCCIÓN',
                 'CANTIDAD (COSTALES)',
                 'SUPERVISOR DE PRODUCCIÓN'
             ]
-
-            # Muestra el dataframe solo con esas columnas
             st.dataframe(df_filtrado[columnas_a_mostrar], use_container_width=True)
