@@ -6,7 +6,6 @@ modularización y performance, y un código mas limpio
 Hecho por Oswaldo Reynoso 01/11/2025
 """
 
-import pandas as pd
 import plotly.express as px
 
 # --- Funciones de Cálculo de KPIs ---

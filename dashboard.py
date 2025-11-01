@@ -8,7 +8,6 @@ Hecho por Oswaldo Reynoso 01/11/2025
 """
 
 import streamlit as st
-import pandas as pd
 from etl import load_data
 from analysis import (
     calculate_kpis,
